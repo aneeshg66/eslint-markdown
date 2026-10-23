@@ -7,7 +7,7 @@
 // Import
 // --------------------------------------------------------------------------------
 
-import { escapeStringRegexp } from '../core/utils/index.js';
+import { escapeStringRegexp, normalizeRegexPattern } from '../core/utils/index.js';
 import {
   URL_RULE_DOCS,
   asciiPunctuationWithQuestionMark,
@@ -32,6 +32,13 @@ type RuleOptions = [
      * @default []
      */
     allow: string[];
+    /**
+     * When `allowTerms` is specified, text matching the listed patterns is ignored by this rule.
+     * This is useful when terms such as `etc.;` are intentionally used instead of being treated as a typo.
+     * String patterns must be non-empty.
+     * @default []
+     */
+    allowTerms: (RegExp | string)[];
     /**
      * Specifies the characters that are treated as punctuation by this rule.
      *
@@ -87,6 +94,16 @@ export default {
             },
             uniqueItems: true,
           },
+          allowTerms: {
+            type: 'array',
+            items: {
+              oneOf: [
+                { type: 'object', additionalProperties: false },
+                { type: 'string', minLength: 1 },
+              ],
+            },
+            uniqueItems: true,
+          },
           punctuation: {
             type: 'array',
             items: {
@@ -106,6 +123,7 @@ export default {
     defaultOptions: [
       {
         allow: [],
+        allowTerms: [],
         punctuation: [...asciiPunctuationWithQuestionMark],
       },
     ],
@@ -123,9 +141,16 @@ export default {
 
   create(context) {
     const { sourceCode } = context;
-    const [{ allow, punctuation }] = context.options;
-
-    const escapedPunctuation = escapeStringRegexp(punctuation.join(''));
+    const [{ allow, allowTerms: allowTermsOption, punctuation: punctuationOption }] =
+      context.options;
+    const allowTerms = allowTermsOption.map(pattern => {
+      const regex = normalizeRegexPattern(pattern);
+      return new RegExp(
+        regex.source,
+        regex.flags.includes('g') ? regex.flags : `${regex.flags}g`,
+      );
+    });
+    const escapedPunctuation = escapeStringRegexp(punctuationOption.join(''));
     const doublePunctuationRegex = new RegExp(
       `(?:^|(?<=[^${escapedPunctuation}]))[${escapedPunctuation}]{2}(?:$|(?=[^${escapedPunctuation}]))`,
       'gu',
@@ -134,21 +159,27 @@ export default {
     return {
       text(node) {
         const [nodeStartOffset] = sourceCode.getRange(node);
-        const matches = sourceCode
-          .getText(node) // Mask HTML entities and gemoji without changing their offsets in the original text.
-          .replace(gemojiRegex, match => ' '.repeat(match.length))
-          .replace(htmlEntityRegex, match => ' '.repeat(match.length))
-          .matchAll(doublePunctuationRegex);
+        const text = sourceCode.getText(node);
+        const masked = text.split('');
+
+        // Match the original text and mask without changing source offsets.
+        for (const regex of [gemojiRegex, htmlEntityRegex, ...allowTerms]) {
+          for (const match of text.matchAll(regex)) {
+            masked.fill(' ', match.index, match.index + match[0].length);
+          }
+        }
+
+        const matches = masked.join('').matchAll(doublePunctuationRegex);
 
         for (const match of matches) {
-          const matchedPunctuation = match[0];
+          const punctuation = match[0];
 
           const startOffset = nodeStartOffset + match.index;
-          const endOffset = startOffset + matchedPunctuation.length;
+          const endOffset = startOffset + punctuation.length;
 
-          if (allow.includes(matchedPunctuation)) continue;
+          if (allow.includes(punctuation)) continue;
 
-          const [leftPunctuation, rightPunctuation] = matchedPunctuation;
+          const [leftPunctuation, rightPunctuation] = punctuation;
           const violation = {
             loc: {
               start: sourceCode.getLocFromIndex(startOffset),
@@ -156,7 +187,7 @@ export default {
             },
 
             data: {
-              punctuation: matchedPunctuation,
+              punctuation,
             },
 
             messageId: 'noDoublePunctuation',
@@ -179,7 +210,7 @@ export default {
                   messageId: 'suggestReplaceWithLeft',
 
                   data: {
-                    punctuation: matchedPunctuation,
+                    punctuation,
                     leftPunctuation,
                   },
 
@@ -194,7 +225,7 @@ export default {
                   messageId: 'suggestReplaceWithRight',
 
                   data: {
-                    punctuation: matchedPunctuation,
+                    punctuation,
                     rightPunctuation,
                   },
 
