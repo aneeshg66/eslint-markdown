@@ -1237,6 +1237,54 @@ ruleTester('require-heading-id', rule, {
         },
       ],
     },
+    {
+      name: 'HTML: remove tabs before an ID attribute in `never` mode',
+      code: '<h2\t\tid="heading-2">Heading 2</h2>',
+      output: '<h2>Heading 2</h2>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: 'heading-2' },
+          line: 1,
+          column: 6,
+          endLine: 1,
+          endColumn: 20,
+        },
+      ],
+    },
+    {
+      name: 'HTML: preserve attributes before and after an ID attribute in `never` mode',
+      code: '<h2 class="title" id="heading-2" title="Heading">Heading 2</h2>',
+      output: '<h2 class="title" title="Heading">Heading 2</h2>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: 'heading-2' },
+          line: 1,
+          column: 19,
+          endLine: 1,
+          endColumn: 33,
+        },
+      ],
+    },
+    {
+      name: 'HTML: preserve attributes after a leading ID attribute in `never` mode',
+      code: '<h2 id="heading-2" class="title" title="Heading">Heading 2</h2>',
+      output: '<h2 class="title" title="Heading">Heading 2</h2>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: 'heading-2' },
+          line: 1,
+          column: 5,
+          endLine: 1,
+          endColumn: 19,
+        },
+      ],
+    },
 
     // `never` option: Edge Cases
     {
