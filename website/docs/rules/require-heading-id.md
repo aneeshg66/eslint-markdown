@@ -15,8 +15,6 @@ This rule intentionally skips reporting on empty headings, such as `#`, `##`, or
 
 :::
 
-HTML headings (`<h1>` through `<h6>`) are also checked. In `'always'` mode, they require a nonempty `id` attribute; in `'never'` mode, any `id` attribute is disallowed. The `allowDepths` option applies to both Markdown and HTML headings.
-
 ## Examples
 
 ### :x: Incorrect
