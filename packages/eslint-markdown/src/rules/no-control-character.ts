@@ -37,6 +37,16 @@ type RuleOptions = [
      * @default true
      */
     skipInlineCode: boolean;
+    /**
+     * `true` allows control characters in all math blocks.
+     * @default false
+     */
+    skipMath: boolean;
+    /**
+     * `true` allows control characters in all inline math.
+     * @default false
+     */
+    skipInlineMath: boolean;
   },
 ];
 type MessageIds = 'noControlCharacter' | 'suggestRemove';
@@ -58,6 +68,7 @@ export default {
 
     docs: {
       description: 'Disallow control character',
+      dialects: ['CommonMark', 'GFM'],
       url: URL_RULE_DOCS('no-control-character'),
       recommended: true,
       stylistic: false,
@@ -93,6 +104,12 @@ export default {
           skipInlineCode: {
             type: 'boolean',
           },
+          skipMath: {
+            type: 'boolean',
+          },
+          skipInlineMath: {
+            type: 'boolean',
+          },
         },
         additionalProperties: false,
       },
@@ -103,6 +120,8 @@ export default {
         allow: [],
         skipCode: true,
         skipInlineCode: true,
+        skipMath: false,
+        skipInlineMath: false,
       },
     ],
 
@@ -112,13 +131,12 @@ export default {
     },
 
     language: 'markdown',
-
-    dialects: ['commonmark', 'gfm'],
   },
 
   create(context) {
     const { sourceCode } = context;
-    const [{ allow, skipCode, skipInlineCode }] = context.options;
+    const [{ allow, skipCode, skipInlineCode, skipMath, skipInlineMath }] =
+      context.options;
 
     const skipRanges = new SkipRanges();
 
@@ -132,6 +150,14 @@ export default {
 
       inlineCode(node) {
         if (skipInlineCode) skipRanges.push(sourceCode.getRange(node)); // Store range information of `InlineCode`.
+      },
+
+      math(node) {
+        if (skipMath) skipRanges.push(sourceCode.getRange(node)); // Store range information of `Math`.
+      },
+
+      inlineMath(node) {
+        if (skipInlineMath) skipRanges.push(sourceCode.getRange(node)); // Store range information of `InlineMath`.
       },
 
       'root:exit'() {
