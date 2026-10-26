@@ -284,30 +284,33 @@ export default {
           }
 
           const id = attrs.find(attribute => attribute.name === 'id');
-          const { startOffset: startTagStartOffset, endOffset: startTagEndOffset } =
-            sourceCodeLocation.startTag;
+          const startTagStartOffset =
+            nodeStartOffset + sourceCodeLocation.startTag.startOffset;
+          const startTagEndOffset =
+            nodeStartOffset + sourceCodeLocation.startTag.endOffset;
 
           if (mode === 'always' && !id?.value) {
             context.report({
               loc: {
-                start: sourceCode.getLocFromIndex(nodeStartOffset + startTagStartOffset),
-                end: sourceCode.getLocFromIndex(nodeStartOffset + startTagEndOffset),
+                start: sourceCode.getLocFromIndex(startTagStartOffset),
+                end: sourceCode.getLocFromIndex(startTagEndOffset),
               },
 
               messageId: 'headingIdAlways',
             });
           } else if (mode === 'never' && id && sourceCodeLocation.attrs?.id) {
-            const startOffset = nodeStartOffset + sourceCodeLocation.attrs.id.startOffset;
-            const endOffset = nodeStartOffset + sourceCodeLocation.attrs.id.endOffset;
+            const idStartOffset =
+              nodeStartOffset + sourceCodeLocation.attrs.id.startOffset;
+            const idEndOffset = nodeStartOffset + sourceCodeLocation.attrs.id.endOffset;
 
             context.report({
               loc: {
-                start: sourceCode.getLocFromIndex(startOffset),
-                end: sourceCode.getLocFromIndex(endOffset),
+                start: sourceCode.getLocFromIndex(idStartOffset),
+                end: sourceCode.getLocFromIndex(idEndOffset),
               },
 
               data: {
-                headingId: id.value,
+                headingId: sourceCode.text.slice(idStartOffset, idEndOffset),
               },
 
               messageId: 'headingIdNever',
@@ -315,15 +318,19 @@ export default {
               fix(fixer) {
                 let leadingSpaces = 0;
 
-                for (let index = startOffset - 1; startTagStartOffset <= index; index--) {
-                  if (html[index] !== ' ' && html[index] !== '\t') {
+                for (
+                  let index = idStartOffset - 1;
+                  startTagStartOffset <= index;
+                  index--
+                ) {
+                  if (sourceCode.text[index] !== ' ' && sourceCode.text[index] !== '\t') {
                     break;
                   } else {
                     leadingSpaces++;
                   }
                 }
 
-                return fixer.removeRange([startOffset - leadingSpaces, endOffset]);
+                return fixer.removeRange([idStartOffset - leadingSpaces, idEndOffset]);
               },
             });
           }

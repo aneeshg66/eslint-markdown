@@ -1197,7 +1197,7 @@ ruleTester('require-heading-id', rule, {
       errors: [
         {
           messageId: 'headingIdNever',
-          data: { headingId: 'heading-4' },
+          data: { headingId: 'id="heading-4"' },
           line: 1,
           column: 5,
           endLine: 1,
@@ -1213,7 +1213,7 @@ ruleTester('require-heading-id', rule, {
       errors: [
         {
           messageId: 'headingIdNever',
-          data: { headingId: '' },
+          data: { headingId: 'id=""' },
           line: 1,
           column: 5,
           endLine: 1,
@@ -1229,7 +1229,7 @@ ruleTester('require-heading-id', rule, {
       errors: [
         {
           messageId: 'headingIdNever',
-          data: { headingId: 'heading-1' },
+          data: { headingId: 'ID="heading-1"' },
           line: 1,
           column: 5,
           endLine: 1,
@@ -1245,7 +1245,7 @@ ruleTester('require-heading-id', rule, {
       errors: [
         {
           messageId: 'headingIdNever',
-          data: { headingId: 'heading-2' },
+          data: { headingId: 'id="heading-2"' },
           line: 1,
           column: 6,
           endLine: 1,
@@ -1261,7 +1261,7 @@ ruleTester('require-heading-id', rule, {
       errors: [
         {
           messageId: 'headingIdNever',
-          data: { headingId: 'heading-2' },
+          data: { headingId: 'id="heading-2"' },
           line: 1,
           column: 19,
           endLine: 1,
@@ -1277,11 +1277,27 @@ ruleTester('require-heading-id', rule, {
       errors: [
         {
           messageId: 'headingIdNever',
-          data: { headingId: 'heading-2' },
+          data: { headingId: 'id="heading-2"' },
           line: 1,
           column: 5,
           endLine: 1,
           endColumn: 19,
+        },
+      ],
+    },
+    {
+      name: 'HTML: preserve the heading tag when removing an ID after a paragraph',
+      code: 'Preface\n\n<h1 id="x">   Heading</h1>',
+      output: 'Preface\n\n<h1>   Heading</h1>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: 'id="x"' },
+          line: 3,
+          column: 5,
+          endLine: 3,
+          endColumn: 11,
         },
       ],
     },
