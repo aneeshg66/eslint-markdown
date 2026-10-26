@@ -122,6 +122,44 @@ ruleTester('require-heading-id', rule, {
       code: 'Heading 2\nMultiple Lines {#heading-2}\n---------',
     },
 
+    // Default: HTML Headings
+    {
+      name: 'HTML: h1 heading with an ID attribute',
+      code: '<h1 id="heading-1">Heading 1</h1>',
+    },
+    {
+      name: 'HTML: h2 heading with an ID attribute',
+      code: '<h2 id="heading-2">Heading 2</h2>',
+    },
+    {
+      name: 'HTML: h3 heading with an ID attribute',
+      code: '<h3 id="heading-3">Heading 3</h3>',
+    },
+    {
+      name: 'HTML: h4 heading with an ID attribute',
+      code: '<h4 id="heading-4">Heading 4</h4>',
+    },
+    {
+      name: 'HTML: h5 heading with an ID attribute',
+      code: '<h5 id="heading-5">Heading 5</h5>',
+    },
+    {
+      name: 'HTML: h6 heading with an ID attribute',
+      code: '<h6 id="heading-6">Heading 6</h6>',
+    },
+    {
+      name: 'HTML: h1 heading with an uppercase ID attribute',
+      code: '<h1 ID="heading-1">Heading 1</h1>',
+    },
+    {
+      name: 'HTML: uppercase h6 heading with an ID attribute',
+      code: '<H6 ID="heading-6">Heading 6</H6>',
+    },
+    {
+      name: 'HTML: non-heading element without an ID attribute',
+      code: '<div>Content</div>',
+    },
+
     // Default: Edge Cases
     {
       name: 'ATX: h1 heading ID with trailing spaces',
@@ -234,6 +272,38 @@ ruleTester('require-heading-id', rule, {
       options: ['never'],
     },
 
+    // `never` option: HTML Headings
+    {
+      name: 'HTML: h1 heading without an ID in `never` mode',
+      code: '<h1>Heading 1</h1>',
+      options: ['never'],
+    },
+    {
+      name: 'HTML: h2 heading without an ID in `never` mode',
+      code: '<h2>Heading 2</h2>',
+      options: ['never'],
+    },
+    {
+      name: 'HTML: h3 heading without an ID in `never` mode',
+      code: '<h3>Heading 3</h3>',
+      options: ['never'],
+    },
+    {
+      name: 'HTML: h4 heading without an ID in `never` mode',
+      code: '<h4>Heading 4</h4>',
+      options: ['never'],
+    },
+    {
+      name: 'HTML: h5 heading without an ID in `never` mode',
+      code: '<h5>Heading 5</h5>',
+      options: ['never'],
+    },
+    {
+      name: 'HTML: h6 heading without an ID in `never` mode',
+      code: '<h6>Heading 6</h6>',
+      options: ['never'],
+    },
+
     // `never` option: Edge Cases
     {
       name: 'ATX: If there is no space or tab before the `leftDelimiter`, it should not be treated as a heading ID',
@@ -270,7 +340,7 @@ ruleTester('require-heading-id', rule, {
       ],
     },
 
-    // `allowDepths` option
+    // `allowDepths` option: ATX Headings
     {
       name: 'ATX: Ignore h1 heading ID',
       code: '# Heading',
@@ -301,36 +371,27 @@ ruleTester('require-heading-id', rule, {
         },
       ],
     },
-    {
-      name: 'HTML: h1 heading with an ID attribute',
-      code: '<h1 id="heading-1">Heading 1</h1>',
-    },
-    {
-      name: 'HTML: uppercase h6 heading with an ID attribute',
-      code: '<H6 ID="heading-6">Heading 6</H6>',
-    },
-    {
-      name: 'HTML: h2 heading without an ID in `never` mode',
-      code: '<h2>Heading 2</h2>',
-      options: ['never'],
-    },
-    {
-      name: 'HTML: h5 heading with an ID attribute',
-      code: '<h5 id="heading-5">Heading 5</h5>',
-    },
-    {
-      name: 'HTML: non-heading element without an ID attribute',
-      code: '<div>Content</div>',
-    },
+
+    // `allowDepths` option: HTML Headings
     {
       name: 'HTML: ignore h1 heading without an ID with `allowDepths`',
       code: '<h1>Heading 1</h1>',
       options: ['always', { allowDepths: [1] }],
     },
     {
+      name: 'HTML: ignore uppercase H6 heading without an ID with `allowDepths`',
+      code: '<H6>Heading 6</H6>',
+      options: ['always', { allowDepths: [6] }],
+    },
+    {
       name: 'HTML: ignore h1 heading with an ID with `allowDepths` in `never` mode',
       code: '<h1 id="heading-1">Heading 1</h1>',
       options: ['never', { allowDepths: [1] }],
+    },
+    {
+      name: 'HTML: ignore uppercase H6 heading with an ID with `allowDepths` in `never` mode',
+      code: '<H6 ID="heading-6">Heading 6</H6>',
+      options: ['never', { allowDepths: [6] }],
     },
   ],
 
@@ -545,6 +606,223 @@ ruleTester('require-heading-id', rule, {
           column: 14,
           endLine: 2,
           endColumn: 15,
+        },
+      ],
+    },
+
+    // Default: HTML Headings
+    {
+      name: 'HTML: h1 heading without an ID attribute',
+      code: '<h1>Heading 1</h1>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h2 heading without an ID attribute',
+      code: '<h2>Heading 2</h2>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h3 heading without an ID attribute',
+      code: '<h3>Heading 3</h3>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h4 heading without an ID attribute',
+      code: '<h4>Heading 4</h4>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h5 heading without an ID attribute',
+      code: '<h5>Heading 5</h5>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h6 heading without an ID attribute',
+      code: '<h6>Heading 6</h6>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H1 heading without an ID attribute',
+      code: '<H1>Heading 1</H1>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H2 heading without an ID attribute',
+      code: '<H2>Heading 2</H2>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H3 heading without an ID attribute',
+      code: '<H3>Heading 3</H3>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H4 heading without an ID attribute',
+      code: '<H4>Heading 4</H4>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H5 heading without an ID attribute',
+      code: '<H5>Heading 5</H5>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H6 heading without an ID attribute',
+      code: '<H6>Heading 6</H6>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: nested h2 heading without an ID attribute',
+      code: '<div><h2>Heading 2</h2></div>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 6,
+          endLine: 1,
+          endColumn: 10,
+        },
+      ],
+    },
+    {
+      name: 'HTML: multiple headings without IDs',
+      code: '<h1>One</h1>\n<h2>Two</h2>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 5,
+        },
+        {
+          messageId: 'headingIdAlways',
+          line: 2,
+          column: 1,
+          endLine: 2,
+          endColumn: 5,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h3 heading with an empty ID attribute',
+      code: '<h3 id="">Heading 3</h3>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 11,
+        },
+      ],
+    },
+    {
+      name: 'HTML: h3 heading with an empty uppercase ID attribute',
+      code: '<h3 ID="">Heading 3</h3>',
+      errors: [
+        {
+          messageId: 'headingIdAlways',
+          line: 1,
+          column: 1,
+          endLine: 1,
+          endColumn: 11,
         },
       ],
     },
@@ -908,6 +1186,56 @@ ruleTester('require-heading-id', rule, {
         },
       ],
       options: ['never'],
+    },
+
+    // `never` option: HTML Headings
+    {
+      name: 'HTML: h4 heading with an ID attribute in `never` mode',
+      code: '<h4 id="heading-4">Heading 4</h4>',
+      output: '<h4>Heading 4</h4>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: 'heading-4' },
+          line: 1,
+          column: 5,
+          endLine: 1,
+          endColumn: 19,
+        },
+      ],
+    },
+    {
+      name: 'HTML: empty ID attribute in `never` mode',
+      code: '<h3 id="">Heading 3</h3>',
+      output: '<h3>Heading 3</h3>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: '' },
+          line: 1,
+          column: 5,
+          endLine: 1,
+          endColumn: 10,
+        },
+      ],
+    },
+    {
+      name: 'HTML: uppercase H1 heading with an uppercase ID attribute in `never` mode',
+      code: '<H1 ID="heading-1">Heading 1</H1>',
+      output: '<H1>Heading 1</H1>',
+      options: ['never'],
+      errors: [
+        {
+          messageId: 'headingIdNever',
+          data: { headingId: 'heading-1' },
+          line: 1,
+          column: 5,
+          endLine: 1,
+          endColumn: 19,
+        },
+      ],
     },
 
     // `never` option: Edge Cases
@@ -1358,107 +1686,16 @@ ruleTester('require-heading-id', rule, {
         },
       ],
     },
-
-    // HTML Headings
     {
-      name: 'HTML: h1 heading without an ID attribute',
-      code: '<h1>Heading 1</h1>',
+      name: 'HTML: report a missing ID after an allowed heading in the same HTML block',
+      code: '<div>\n<h1>One</h1>\n<h2>Two</h2>\n</div>',
+      options: ['always', { allowDepths: [1] }],
       errors: [
         {
           messageId: 'headingIdAlways',
-          line: 1,
+          line: 3,
           column: 1,
-          endLine: 1,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      name: 'HTML: h6 heading without an ID attribute',
-      code: '<h6>Heading 6</h6>',
-      errors: [
-        {
-          messageId: 'headingIdAlways',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 5,
-        },
-      ],
-    },
-    {
-      name: 'HTML: nested h2 heading without an ID attribute',
-      code: '<div><h2>Heading 2</h2></div>',
-      errors: [
-        {
-          messageId: 'headingIdAlways',
-          line: 1,
-          column: 6,
-          endLine: 1,
-          endColumn: 10,
-        },
-      ],
-    },
-    {
-      name: 'HTML: h3 heading with an empty ID attribute',
-      code: '<h3 id="">Heading 3</h3>',
-      errors: [
-        {
-          messageId: 'headingIdAlways',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 11,
-        },
-      ],
-    },
-    {
-      name: 'HTML: h4 heading with an ID attribute in `never` mode',
-      code: '<h4 id="heading-4">Heading 4</h4>',
-      options: ['never'],
-      output: '<h4>Heading 4</h4>',
-      errors: [
-        {
-          messageId: 'headingIdNever',
-          data: { headingId: 'id="heading-4"' },
-          line: 1,
-          column: 5,
-          endLine: 1,
-          endColumn: 19,
-        },
-      ],
-    },
-    {
-      name: 'HTML: empty ID attribute in `never` mode',
-      code: '<h3 id="">Heading 3</h3>',
-      options: ['never'],
-      output: '<h3>Heading 3</h3>',
-      errors: [
-        {
-          messageId: 'headingIdNever',
-          line: 1,
-          column: 5,
-          endLine: 1,
-          endColumn: 10,
-        },
-      ],
-    },
-    {
-      name: 'HTML: multiple headings without IDs',
-      code: '<h1>One</h1>\n<h2>Two</h2>',
-      errors: [
-        {
-          messageId: 'headingIdAlways',
-          line: 1,
-          column: 1,
-          endLine: 1,
-          endColumn: 5,
-        },
-        {
-          messageId: 'headingIdAlways',
-          line: 2,
-          column: 1,
-          endLine: 2,
+          endLine: 3,
           endColumn: 5,
         },
       ],

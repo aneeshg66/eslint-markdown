@@ -48,6 +48,12 @@ type RuleOptions = [
 type MessageIds = 'headingIdAlways' | 'headingIdNever';
 
 // --------------------------------------------------------------------------------
+// Helper
+// --------------------------------------------------------------------------------
+
+const headingTagNameRegex = /^h[1-6]$/i;
+
+// --------------------------------------------------------------------------------
 // Rule Definition
 // --------------------------------------------------------------------------------
 
@@ -124,59 +130,6 @@ export default {
     );
 
     return {
-      html(node) {
-        const [nodeStartOffset] = sourceCode.getRange(node);
-        const html = sourceCode.getText(node);
-
-        for (const depth of [1, 2, 3, 4, 5, 6] as const) {
-          if (allowDepths.includes(depth)) continue;
-
-          for (const { attrs, sourceCodeLocation } of getElementsByTagName(
-            html,
-            `h${depth}`,
-          )) {
-            const location = sourceCodeLocation!;
-            const startTag = location.startTag!;
-
-            const id = attrs.find(attribute => attribute.name === 'id');
-
-            if (mode === 'always' && !id?.value) {
-              context.report({
-                loc: {
-                  start: sourceCode.getLocFromIndex(
-                    nodeStartOffset + startTag.startOffset,
-                  ),
-                  end: sourceCode.getLocFromIndex(nodeStartOffset + startTag.endOffset),
-                },
-                messageId: 'headingIdAlways',
-              });
-            } else if (mode === 'never' && id && location.attrs?.id) {
-              const { startOffset, endOffset } = location.attrs.id;
-              const headingId = html.slice(startOffset, endOffset);
-
-              context.report({
-                loc: {
-                  start: sourceCode.getLocFromIndex(nodeStartOffset + startOffset),
-                  end: sourceCode.getLocFromIndex(nodeStartOffset + endOffset),
-                },
-                data: { headingId },
-                messageId: 'headingIdNever',
-                fix(fixer) {
-                  const leadingSpaces = html
-                    .slice(startTag.startOffset, startOffset)
-                    .match(/[ \t]*$/)![0].length;
-
-                  return fixer.removeRange([
-                    nodeStartOffset + startOffset - leadingSpaces,
-                    nodeStartOffset + endOffset,
-                  ]);
-                },
-              });
-            }
-          }
-        }
-      },
-
       heading(node) {
         // If the heading's depth is included in `allowDepths`, skip it.
         if (allowDepths.includes(node.depth)) {
@@ -309,6 +262,71 @@ export default {
               );
             },
           });
+        }
+      },
+
+      html(node) {
+        const [nodeStartOffset] = sourceCode.getRange(node);
+        const html = sourceCode.getText(node);
+
+        for (const { tagName, attrs, sourceCodeLocation } of getElementsByTagName(
+          html,
+          headingTagNameRegex,
+        )) {
+          const depth = Number(tagName[1]) as Heading['depth'];
+
+          if (
+            allowDepths.includes(depth) ||
+            !sourceCodeLocation ||
+            !sourceCodeLocation.startTag
+          ) {
+            continue;
+          }
+
+          const id = attrs.find(attribute => attribute.name === 'id');
+          const { startOffset: startTagStartOffset, endOffset: startTagEndOffset } =
+            sourceCodeLocation.startTag;
+
+          if (mode === 'always' && !id?.value) {
+            context.report({
+              loc: {
+                start: sourceCode.getLocFromIndex(nodeStartOffset + startTagStartOffset),
+                end: sourceCode.getLocFromIndex(nodeStartOffset + startTagEndOffset),
+              },
+
+              messageId: 'headingIdAlways',
+            });
+          } else if (mode === 'never' && id && sourceCodeLocation.attrs?.id) {
+            const startOffset = nodeStartOffset + sourceCodeLocation.attrs.id.startOffset;
+            const endOffset = nodeStartOffset + sourceCodeLocation.attrs.id.endOffset;
+
+            context.report({
+              loc: {
+                start: sourceCode.getLocFromIndex(startOffset),
+                end: sourceCode.getLocFromIndex(endOffset),
+              },
+
+              data: {
+                headingId: id.value,
+              },
+
+              messageId: 'headingIdNever',
+
+              fix(fixer) {
+                let leadingSpaces = 0;
+
+                for (let index = startOffset - 1; startTagStartOffset <= index; index--) {
+                  if (html[index] !== ' ' && html[index] !== '\t') {
+                    break;
+                  } else {
+                    leadingSpaces++;
+                  }
+                }
+
+                return fixer.removeRange([startOffset - leadingSpaces, endOffset]);
+              },
+            });
+          }
         }
       },
     };

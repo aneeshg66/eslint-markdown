@@ -72,6 +72,12 @@ Heading 2
 Multiple Lines
 ---------
 
+<!-- HTML Headings -->
+
+<h1>Heading 1</h1>
+
+<h6 id="">Heading 6</h6>
+
 <!-- Other Invalid Heading ID Syntax -->
 
 # Heading {#}
@@ -89,12 +95,6 @@ If a custom heading ID is wrapped in `emphasis`, it won't be recognized as valid
 # Heading **{#id}**
 
 If a custom heading ID is wrapped in `strong`, it won't be recognized as valid.
-
-<!-- HTML Headings -->
-
-<h1>Heading 1</h1>
-
-<h6 id="">Heading 6</h6>
 ```
 
 #### With `'never'` First Option
@@ -148,7 +148,7 @@ Multiple Lines {#heading-2}
 
 <!-- HTML Headings -->
 
-<h2 id="heading-2">Heading 2</h2>
+<h1 id="heading-1">Heading 1</h1>
 ```
 
 #### With `'never'` First Option and `{ leftDelimiter: '[', rightDelimiter: ']' }` Second Option
@@ -310,7 +310,7 @@ Multiple Lines
 
 <!-- HTML Headings -->
 
-<h2>Heading 2</h2>
+<h1>Heading 1</h1>
 ```
 
 ## Options
